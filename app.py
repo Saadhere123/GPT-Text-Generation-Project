@@ -1,55 +1,44 @@
 import streamlit as st
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from transformers import pipeline
 
 st.set_page_config(
     page_title="GPT Text Generator",
-    page_icon="🤖",
-    layout="centered"
+    page_icon="🤖"
 )
 
-st.title("🤖 GPT Text Generation App")
+st.title("🤖 GPT Text Generation")
 
-generator = pipeline(
-    "text-generation",
-    model="gpt2"
-)
+@st.cache_resource
+def load_model():
 
-prompt = st.text_area(
-    "Enter Prompt",
-    height=150
-)
+    tokenizer = AutoTokenizer.from_pretrained("gpt2")
 
-max_length = st.slider(
-    "Max Length",
-    50,
-    300,
-    150
-)
+    model = AutoModelForCausalLM.from_pretrained("gpt2")
 
-temperature = st.slider(
-    "Temperature",
-    0.1,
-    1.5,
-    0.8
-)
+    generator = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer
+    )
 
-if st.button("Generate Text"):
+    return generator
+
+generator = load_model()
+
+prompt = st.text_area("Enter Prompt")
+
+if st.button("Generate"):
 
     if prompt:
 
-        with st.spinner("Generating..."):
+        output = generator(
+            prompt,
+            max_length=120,
+            temperature=0.8,
+            top_k=50,
+            top_p=0.95,
+            do_sample=True
+        )
 
-            output = generator(
-                prompt,
-                max_length=max_length,
-                temperature=temperature,
-                top_k=50,
-                top_p=0.95,
-                do_sample=True
-            )
-
-            generated_text = output[0]["generated_text"]
-
-            st.subheader("Generated Output")
-
-            st.write(generated_text)
+        st.write(output[0]["generated_text"])
