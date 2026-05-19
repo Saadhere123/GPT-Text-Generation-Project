@@ -5,7 +5,6 @@ This project generates human-like text using GPT-2 from Hugging Face Transformer
 
 ## Features
 - GPT-2 text generation
-- Adjustable generation settings
 - Streamlit UI
 - FastAPI deployment
 - Multiple prompts support
